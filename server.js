@@ -20,6 +20,8 @@ app.use('/api/product', productRouter)
 app.use('/api/cart', cartRouter)
 app.use('/api/order', orderRouter)
 
+app.get('/favicon.ico', (req, res) => res.status(204));
+
 app.get('/', (req, res) => {
     return res.json({ success: true, message: "Api is working!" })
 })
