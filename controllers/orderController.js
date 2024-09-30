@@ -130,6 +130,7 @@ const verifyOrder = async (req, res) => {
 }
 
 const verifyPayment = async (req, res) => {
+    console.log("hook");
     const sig = req.headers["stripe-signature"]; // Signature to verify the event
 
     let event;
