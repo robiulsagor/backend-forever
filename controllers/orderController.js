@@ -1,5 +1,8 @@
 import orderModel from "../models/orderModel.js"
 import userModel from "../models/userModel.js"
+import Stripe from "stripe"
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
 const placeOrder = async (req, res) => {
     try {
@@ -36,11 +39,95 @@ const placeOrder = async (req, res) => {
 
 }
 
-const placeOrderStripe = async (req, res) => { }
+const placeOrderStripe = async (req, res) => {
+    try {
+        const { userId, items, address, amount } = req.body
+        const { origin } = req.headers
 
-const placeOrderRazorpay = async (req, res) => { }
+        const orderData = {
+            userId,
+            items,
+            address,
+            amount,
+            paymentMethod: "Stripe",
+            payment: false,
+            date: Date.now()
+        }
+
+        const order = await orderModel.create(orderData)
+
+        const line_items = items.map(item => ({
+            price_data: {
+                currency: "usd",
+                product_data: {
+                    name: item.name
+                },
+                unit_amount: item.price * 100
+            },
+            quantity: item.quantity
+        }))
+
+        line_items.push({
+            price_data: {
+                currency: "usd",
+                product_data: {
+                    name: "Shipping fee"
+                },
+                unit_amount: 10
+            },
+            quantity: 1
+        })
+
+        const session = await stripe.checkout.sessions.create({
+            mode: "payment",
+            line_items,
+            success_url: `${origin}/verify?success=true&orderId=${order._id}`,
+            cancel_url: `${origin}/verify?success=false&orderId=${order._id}`
+        })
+
+        return res.status(200).send({
+            success: true,
+            message: "Order placed successfully",
+            session_url: session.url
+        })
 
 
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success: false,
+            message: error.message,
+        })
+    }
+}
+
+const verifyOrder = async (req, res) => {
+    try {
+        const { orderId, success, userId } = req.body
+
+        if (success === "true") {
+            await orderModel.findByIdAndUpdate(orderId, { payment: true })
+            await userModel.findByIdAndUpdate(userId, { cartData: [] })
+            return res.status(200).json({
+                success: true,
+                message: "Order verified successfully"
+            })
+        } else {
+            await orderModel.findByIdAndDelete(orderId)
+            return res.status(200).json({
+                success: false,
+                message: "Order verification failed"
+            })
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success: false,
+            message: error.message,
+        })
+    }
+}
 
 
 // for admin panel
@@ -102,4 +189,4 @@ const userOrders = async (req, res) => {
 }
 
 
-export { placeOrder, placeOrderStripe, placeOrderRazorpay, allOrders, userOrders, updateOrder }
+export { verifyOrder, placeOrder, placeOrderStripe, allOrders, userOrders, updateOrder }
