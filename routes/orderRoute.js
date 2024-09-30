@@ -12,7 +12,7 @@ orderRoute.post("/place-order-razorpay", auth, placeOrderRazorpay)
 
 // admin routes
 orderRoute.get("/list", adminAuth, allOrders)
-orderRoute.put("/status", adminAuth, updateOrder)
+orderRoute.post("/status", adminAuth, updateOrder)
 
 // user routes
 orderRoute.get("/user-orders", auth, userOrders)

@@ -61,7 +61,24 @@ const allOrders = async (req, res) => {
 }
 
 // for admin
-const updateOrder = async (req, res) => { }
+const updateOrder = async (req, res) => {
+    try {
+        const { id, status } = req.body
+        const order = await orderModel.findByIdAndUpdate(id, { status })
+        return res.status(200).send({
+            success: true,
+            message: "Order status updated successfully",
+            order
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success: false,
+            message: error.message
+
+        })
+    }
+}
 
 // for user
 const userOrders = async (req, res) => {
