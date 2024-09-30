@@ -129,6 +129,43 @@ const verifyOrder = async (req, res) => {
     }
 }
 
+const verifyPayment = async (req, res) => {
+    const sig = req.headers["stripe-signature"]; // Signature to verify the event
+
+    let event;
+    const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
+
+    try {
+        // Verify the webhook signature using the Stripe secret and event payload
+        event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    } catch (err) {
+        console.error(`Webhook signature verification failed: ${err.message}`);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    // Handle the event based on its type
+    switch (event.type) {
+        case "checkout.session.completed":
+            const session = event.data.object;
+            // Handle successful payment here
+            console.log("Payment successful for session:", session);
+            // You can update your database, send emails, etc.
+            break;
+
+        case "payment_intent.succeeded":
+            const paymentIntent = event.data.object;
+            console.log("PaymentIntent was successful!");
+            // Handle other events here if needed
+            break;
+
+        default:
+            console.warn(`Unhandled event type ${event.type}`);
+    }
+
+    // Acknowledge receipt of the event
+    res.status(200).send("Received webhook");
+}
+
 
 // for admin panel
 const allOrders = async (req, res) => {
@@ -189,4 +226,4 @@ const userOrders = async (req, res) => {
 }
 
 
-export { verifyOrder, placeOrder, placeOrderStripe, allOrders, userOrders, updateOrder }
+export { verifyOrder, placeOrder, placeOrderStripe, allOrders, userOrders, updateOrder, verifyPayment }

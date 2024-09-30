@@ -1,5 +1,5 @@
 import express from "express"
-import { placeOrder, placeOrderStripe, allOrders, userOrders, updateOrder, verifyOrder } from "../controllers/orderController.js"
+import { placeOrder, placeOrderStripe, allOrders, userOrders, updateOrder, verifyOrder, verifyPayment } from "../controllers/orderController.js"
 import auth from "../middleware/auth.js"
 import adminAuth from "../middleware/adminAuth.js"
 
@@ -16,5 +16,6 @@ orderRoute.post("/status", adminAuth, updateOrder)
 // user routes
 orderRoute.get("/user-orders", auth, userOrders)
 orderRoute.post("/verify", auth, verifyOrder)
+orderRoute.post("/webhook", verifyPayment)
 
 export default orderRoute
