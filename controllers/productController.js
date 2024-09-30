@@ -19,13 +19,12 @@ const addProduct = async (req, res) => {
         )
 
         const productData = {
-            name, description, price: Number(price), image: imagesUrl, category, subCategory, sizes: JSON.parse(sizes), bestSeller: bestSeller === true ? true : false, date: Date.now()
+            name, description, price: Number(price), image: imagesUrl, category, subCategory, sizes: JSON.parse(sizes), bestSeller, date: Date.now()
         }
 
         const product = new productModel(productData)
         await product.save()
 
-        console.log(product);
         return res.json({ success: true, message: "Product has been added" })
     } catch (error) {
         console.log(error);
