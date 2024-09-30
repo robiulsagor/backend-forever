@@ -40,8 +40,28 @@ const placeOrderStripe = async (req, res) => { }
 
 const placeOrderRazorpay = async (req, res) => { }
 
-// for adming panel
-const allOrders = async (req, res) => { }
+
+
+
+// for admin panel
+const allOrders = async (req, res) => {
+    try {
+        const orders = await orderModel.find()
+        return res.status(200).send({
+            success: true,
+            orders
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success: false,
+            message: error.message,
+        })
+    }
+}
+
+// for admin
+const updateOrder = async (req, res) => { }
 
 // for user
 const userOrders = async (req, res) => {
@@ -64,7 +84,5 @@ const userOrders = async (req, res) => {
     }
 }
 
-// update order status from admin panel
-const updateOrder = async (req, res) => { }
 
 export { placeOrder, placeOrderStripe, placeOrderRazorpay, allOrders, userOrders, updateOrder }
