@@ -13,6 +13,8 @@ connectDB()
 
 app.use(express.json())
 app.use(cors())
+app.use(express.raw({ type: 'application/json' }));
+app.use(bodyParser.raw({ type: 'application/json' }));
 
 // api endpoints
 app.use('/api/user', userRouter)
