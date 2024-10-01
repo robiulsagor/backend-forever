@@ -131,14 +131,18 @@ const verifyOrder = async (req, res) => {
 
 const verifyPayment = async (req, res) => {
     console.log("hook");
+    console.log("body", req.body)
     const sig = req.headers["stripe-signature"]; // Signature to verify the event
+    console.log("sig", sig)
 
     let event;
     const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
+    console.log("endpointSecret", endpointSecret)
 
     try {
         // Verify the webhook signature using the Stripe secret and event payload
         event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+        console.log("event", event)
     } catch (err) {
         console.error(`Webhook signature verification failed: ${err.message}`);
         return res.status(400).send(`Webhook Error: ${err.message}`);
