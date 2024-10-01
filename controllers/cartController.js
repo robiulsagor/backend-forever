@@ -1,27 +1,33 @@
 import userModel from "../models/userModel.js"
 
 const addToCart = async (req, res) => {
-    const { userId, productId, quantity, size } = req.body
+    try {
+        const { userId, productId, quantity, size } = req.body
 
-    const userData = await userModel.findById(userId)
-    let cartData = userData.cartData
+        const userData = await userModel.findById(userId)
+        let cartData = userData.cartData
 
-    let itemExists = false
+        let itemExists = false
 
-    cartData.map(item => {
-        if (item.id === productId && item.size === size) {
-            itemExists = true
-            item.count += 1
+        cartData.map(item => {
+            if (item.id === productId && item.size === size) {
+                itemExists = true
+                item.count += 1
+            }
+            return item
+        })
+
+        if (!itemExists) {
+            cartData.push({ id: productId, size, count: 1 })
         }
-        return item
-    })
 
-    if (!itemExists) {
-        cartData.push({ id: productId, size, count: 1 })
+        await userModel.findByIdAndUpdate(userId, { cartData })
+        return res.status(200).json({ success: true, message: "Product added to cart successfully" })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message })
     }
 
-    await userModel.findByIdAndUpdate(userId, { cartData })
-    return res.status(200).json({ success: true, message: "Product added to cart successfully" })
 }
 
 const addMultipleToCart = async (req, res) => {
@@ -67,11 +73,11 @@ const getCart = async (req, res) => {
     const { userId } = req.body
     try {
         const userData = await userModel.findById(userId)
-        let cartData = userData.cartData
+        let cartData = userData?.cartData
         res.status(200).json({ success: true, cartData, message: "Cart fetched successfully" })
     } catch (error) {
         console.log(error);
-        res.status(500).json({ success: false, message: "Internal server error fetching cart" })
+        res.status(500).json({ success: false, message: error.message })
     }
 }
 
