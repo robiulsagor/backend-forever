@@ -11,7 +11,7 @@ const app = express()
 const PORT = process.env.PORT || 5000
 connectDB()
 
-const allowedOrigins = ['https://frontend-forever-lac.vercel.app', 'http://localhost:5173'];
+const allowedOrigins = ['https://frontend-forever-lac.vercel.app', 'https://admin-forever.vercel.app/'];
 
 app.options('*', cors());  // Allow preflight requests
 
