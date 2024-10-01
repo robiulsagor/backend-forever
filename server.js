@@ -39,3 +39,5 @@ app.get('/favicon.ico', (req, res) => res.status(204));
 app.get('/', (req, res) => {
     return res.json({ success: true, message: "Api is working!" })
 })
+
+app.listen(PORT, () => console.log("Server started"))
