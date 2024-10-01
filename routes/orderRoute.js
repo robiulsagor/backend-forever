@@ -17,6 +17,6 @@ orderRoute.post("/status", adminAuth, updateOrder)
 // user routes
 orderRoute.get("/user-orders", auth, userOrders)
 orderRoute.post("/verify", auth, verifyOrder)
-orderRoute.post("/webhook", bodyParser.raw({ type: "application/json" }), verifyPayment)
+// orderRoute.post("/webhook", bodyParser.raw({ type: "application/json" }), verifyPayment)
 
 export default orderRoute
