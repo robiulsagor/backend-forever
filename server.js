@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 5000
 connectDB()
 
 app.use(cors({
-    origin: 'http://localhost:5173',  // Replace with your frontend URL when deployed
+    origin: 'https://frontend-forever-nu.vercel.app/',  // Replace with your frontend URL when deployed
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // List allowed methods if needed
     credentials: true  // If you are sending cookies or authorization headers
 }));
