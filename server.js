@@ -13,13 +13,12 @@ const PORT = process.env.PORT || 5000
 connectDB()
 
 app.use(cors())
+app.use(express.json())
 
-
-// api endpoints
-app.use('/api/user', app.use(express.json()), userRouter)
-app.use('/api/product', app.use(express.json()), productRouter)
-app.use('/api/cart', app.use(express.json()), cartRouter)
-app.use('/api/order', app.use(express.json()), orderRouter)
+app.use('/api/user', userRouter);
+app.use('/api/product', productRouter);
+app.use('/api/cart', cartRouter);
+app.use('/api/order', orderRouter);
 app.post('/api/webhook', bodyParser.raw({ type: 'application/json' }), verifyPayment)
 
 app.get('/favicon.ico', (req, res) => res.status(204));
