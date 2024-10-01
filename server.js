@@ -11,8 +11,10 @@ const app = express()
 const PORT = process.env.PORT || 5000
 connectDB()
 
+app.options('*', cors());  // Allow preflight requests
+
 app.use(cors({
-    origin: 'https://frontend-forever-nu.vercel.app/',  // Replace with your frontend URL when deployed
+    origin: true,  // Replace with your frontend URL when deployed
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // List allowed methods if needed
     credentials: true  // If you are sending cookies or authorization headers
 }));
