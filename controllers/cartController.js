@@ -2,6 +2,7 @@ import userModel from "../models/userModel.js"
 
 const addToCart = async (req, res) => {
     const { userId, productId, quantity, size } = req.body
+
     const userData = await userModel.findById(userId)
     let cartData = userData.cartData
 
@@ -21,6 +22,23 @@ const addToCart = async (req, res) => {
 
     await userModel.findByIdAndUpdate(userId, { cartData })
     return res.status(200).json({ success: true, message: "Product added to cart successfully" })
+}
+
+const addMultipleToCart = async (req, res) => {
+    try {
+        const { data, userId } = req.body
+
+        const userData = await userModel.findById(userId)
+        let cartData = userData.cartData
+
+        cartData.push(...data)
+
+        await userModel.findByIdAndUpdate(userId, { cartData })
+        return res.status(200).json({ success: true, message: "Products added to cart successfully" })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: "Internal server error adding multiple products to cart" })
+    }
 }
 
 const updateCart = async (req, res) => {
@@ -75,4 +93,4 @@ const deleteItem = async (req, res) => {
 
 }
 
-export { addToCart, updateCart, getCart, deleteItem }
+export { addToCart, updateCart, getCart, deleteItem, addMultipleToCart }

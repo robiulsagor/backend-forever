@@ -50,11 +50,13 @@ const placeOrderStripe = async (req, res) => {
             address,
             amount,
             paymentMethod: "Stripe",
+            status: "Not Paid",
             payment: false,
             date: Date.now()
         }
 
         const order = await orderModel.create(orderData)
+        await userModel.findByIdAndUpdate(userId, { cartData: [] })
 
         const line_items = items.map(item => ({
             price_data: {
@@ -101,6 +103,35 @@ const placeOrderStripe = async (req, res) => {
     }
 }
 
+const handleCheckout = async (req, res) => {
+    try {
+        const { orderId } = req.body
+        const order = await orderModel.findById(orderId)
+        return res.status(200).json({
+            success: true,
+            order
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+const deleteUnPaidStripeOrder = async (req, res) => {
+    try {
+        const { orderId } = req.body
+        await orderModel.findByIdAndDelete(orderId)
+
+        res.json({ success: true, message: "Unpaid order deleted" })
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Order deletion failed!" })
+    }
+}
+
 const verifyOrder = async (req, res) => {
     try {
         const { orderId, success, userId } = req.body
@@ -128,56 +159,6 @@ const verifyOrder = async (req, res) => {
         })
     }
 }
-
-const verifyPayment = async (req, res) => {
-    const sig = req.headers["stripe-signature"]; // Signature to verify the event
-
-    let event;
-    const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
-
-    if (endpointSecret == undefined) {
-        console.log("Webhook Error: Endpoint Secret is not defined");
-        return res.status(400).send("Webhook Error: Endpoint Secret is not defined");
-    }
-
-    try {
-        // Verify the webhook signature using the Stripe secret and event payload
-        event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-        console.log("Verified!!!");
-    } catch (err) {
-        console.error(`Webhook signature verification failed: ${err.message}`);
-        return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
-
-    // Handle the event based on its type
-    switch (event.type) {
-        case "checkout.session.completed":
-            const session = event.data.object;
-            // Handle successful payment here
-            console.log("Payment successful for session:");
-            // You can update your database, send emails, etc.
-            break;
-
-        case "payment_intent.created":
-            const paymentIntent = event.data.object;
-            console.log("PaymentIntent was created!");
-            // Handle other events here if needed
-            break;
-
-        case "payment_intent.succeeded":
-            const paymentIntentSuccess = event.data.object;
-            console.log("PaymentIntent was successful!");
-            // Handle other events here if needed
-            break;
-
-        default:
-            console.warn(`Unhandled event type ${event.type}`);
-    }
-
-    // Acknowledge receipt of the event
-    res.status(200).send("Received webhook");
-}
-
 
 // for admin panel
 const allOrders = async (req, res) => {
@@ -216,6 +197,7 @@ const updateOrder = async (req, res) => {
     }
 }
 
+
 // for user
 const userOrders = async (req, res) => {
     try {
@@ -238,4 +220,4 @@ const userOrders = async (req, res) => {
 }
 
 
-export { verifyOrder, placeOrder, placeOrderStripe, allOrders, userOrders, updateOrder, verifyPayment }
+export { verifyOrder, placeOrder, placeOrderStripe, allOrders, userOrders, updateOrder, handleCheckout, deleteUnPaidStripeOrder }

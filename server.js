@@ -7,16 +7,11 @@ import userRouter from "./routes/userRouter.js"
 import productRouter from "./routes/productRouter.js"
 import cartRouter from "./routes/cartRouter.js"
 import orderRouter from "./routes/orderRoute.js"
-import { verifyPayment } from "./controllers/orderController.js"
 const app = express()
 const PORT = process.env.PORT || 5000
 connectDB()
 
 app.use(cors())
-
-app.post('/api/webhook', bodyParser.raw({ type: 'application/json' }), verifyPayment)
-
-
 app.use(express.json())
 
 app.use('/api/user', userRouter);
