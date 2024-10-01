@@ -13,13 +13,16 @@ const PORT = process.env.PORT || 5000
 connectDB()
 
 app.use(cors())
+
+app.post('/api/webhook', bodyParser.raw({ type: 'application/json' }), verifyPayment)
+
+
 app.use(express.json())
 
 app.use('/api/user', userRouter);
 app.use('/api/product', productRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/order', orderRouter);
-app.post('/api/webhook', bodyParser.raw({ type: 'application/json' }), verifyPayment)
 
 app.get('/favicon.ico', (req, res) => res.status(204));
 

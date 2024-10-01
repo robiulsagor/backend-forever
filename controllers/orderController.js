@@ -130,19 +130,20 @@ const verifyOrder = async (req, res) => {
 }
 
 const verifyPayment = async (req, res) => {
-    console.log("hook");
-    console.log("body", req.body)
     const sig = req.headers["stripe-signature"]; // Signature to verify the event
-    console.log("sig", sig)
 
     let event;
     const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
-    console.log("endpointSecret", endpointSecret)
+
+    if (endpointSecret == undefined) {
+        console.log("Webhook Error: Endpoint Secret is not defined");
+        return res.status(400).send("Webhook Error: Endpoint Secret is not defined");
+    }
 
     try {
         // Verify the webhook signature using the Stripe secret and event payload
         event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-        console.log("event", event)
+        console.log("Verified!!!");
     } catch (err) {
         console.error(`Webhook signature verification failed: ${err.message}`);
         return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -153,12 +154,18 @@ const verifyPayment = async (req, res) => {
         case "checkout.session.completed":
             const session = event.data.object;
             // Handle successful payment here
-            console.log("Payment successful for session:", session);
+            console.log("Payment successful for session:");
             // You can update your database, send emails, etc.
             break;
 
-        case "payment_intent.succeeded":
+        case "payment_intent.created":
             const paymentIntent = event.data.object;
+            console.log("PaymentIntent was created!");
+            // Handle other events here if needed
+            break;
+
+        case "payment_intent.succeeded":
+            const paymentIntentSuccess = event.data.object;
             console.log("PaymentIntent was successful!");
             // Handle other events here if needed
             break;
